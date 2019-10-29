@@ -242,7 +242,7 @@ def parse_config(argv=None):
     parser.add_argument('--point2plane', default=False,
                         type=lambda arg: arg.lower() in ['true', '1'],
                         help='Use point to plane distance')
-    parser.add_argument('--part_segm_fn', default='', type=str,
+    parser.add_argument('--part_segm_fn', default='smplx_parts_segm.pkl', type=str,
                         help='The file with the part segmentation for the' +
                         ' faces of the model')
     parser.add_argument('--ign_part_pairs', default=None,
