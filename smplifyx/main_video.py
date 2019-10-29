@@ -215,23 +215,18 @@ def main(**args):
             keypoints = data['keypoints']
             print('Processing: {}'.format(data['img_path']))
 
-            curr_result_folder = osp.join(result_folder, fn)
-            if not osp.exists(curr_result_folder):
-                os.makedirs(curr_result_folder)
-            curr_mesh_folder = osp.join(mesh_folder, fn)
-            if not osp.exists(curr_mesh_folder):
-                os.makedirs(curr_mesh_folder)
+            curr_result_folder = result_folder
+            curr_mesh_folder = mesh_folder
             for person_id in range(keypoints.shape[0]):
                 if person_id >= max_persons and max_persons > 0:
                     continue
 
                 curr_result_fn = osp.join(curr_result_folder,
-                                        '{:03d}.pkl'.format(person_id))
+                                        '{}.pkl'.format(fn))
                 curr_mesh_fn = osp.join(curr_mesh_folder,
-                                        '{:03d}.obj'.format(person_id))
+                                        '{}.obj'.format(fn))
 
-                curr_img_folder = osp.join(output_folder, 'images', fn,
-                                        '{:03d}'.format(person_id))
+                curr_img_folder = osp.join(output_folder, 'images')
                 if not osp.exists(curr_img_folder):
                     os.makedirs(curr_img_folder)
 
@@ -250,7 +245,7 @@ def main(**args):
                 elif gender == 'male':
                     body_model = male_model
 
-                out_img_fn = osp.join(curr_img_folder, 'output.png')
+                out_img_fn = osp.join(curr_img_folder, osp.basename(fn))
 
                 fit_single_frame(img, keypoints[[person_id]],
                                 body_model=body_model,
