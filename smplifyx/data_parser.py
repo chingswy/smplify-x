@@ -313,12 +313,11 @@ class OpenPoseKp(Dataset):
         return self.read_item(img_path, idx)
 
     def read_item(self, img_path, idx):
-        print(img_path)
         img = cv2.imread(img_path).astype(np.float32)[:, :, ::-1] / 255.0
         img_fn = osp.split(img_path)[1]
         img_fn, _ = osp.splitext(osp.split(img_path)[1])
 
-        keyp_tuple = read_keypoints_new(self.info, idx, use_hands=self.use_hands,
+        keyp_tuple = read_keypoints_new(self.info, idx-1, use_hands=self.use_hands,
                                     use_face=self.use_face,
                                     use_face_contour=self.use_face_contour)
 
