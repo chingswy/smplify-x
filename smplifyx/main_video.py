@@ -48,8 +48,17 @@ def main(**args):
     with open(pickle_name, 'rb') as f:
         data = pickle.load(f)
     info = data['info']
+    args.pop('output_folder')
+    args.pop('result_folder')
+    args.pop('mesh_folder')
+    # remove old parameters
+    args.pop('data_folder')
+    args.pop('dataset')
+    input_gender = args.pop('gender', 'neutral')
+    gender_lbl_type = args.pop('gender_lbl_type', 'none')
+    max_persons = args.pop('max_persons', 1)
+
     for videoname in info.keys():
-        args.pop('output_folder')
         output_folder = join(data_path, videoname, 'smplifyx')
         output_folder = osp.expandvars(output_folder)
         if not osp.exists(output_folder):
@@ -59,12 +68,10 @@ def main(**args):
         conf_fn = osp.join(output_folder, 'conf.yaml')
         with open(conf_fn, 'w') as conf_file:
             yaml.dump(args, conf_file)
-        args.pop('result_folder')
         result_folder = 'results'
         result_folder = osp.join(output_folder, result_folder)
         if not osp.exists(result_folder):
             os.makedirs(result_folder)
-        args.pop('mesh_folder')
         mesh_folder = 'meshes'
         mesh_folder = osp.join(output_folder, mesh_folder)
         if not osp.exists(mesh_folder):
@@ -87,17 +94,14 @@ def main(**args):
         if use_cuda and not torch.cuda.is_available():
             print('CUDA is not available, exiting!')
             sys.exit(-1)
-        # remove old parameters
-        args.pop('data_folder')
-        args.pop('dataset')
+        
         dataset_obj = create_dataset(dataset='openpose_new', data_folder=join(data_path, videoname, 'video_frames'),
             info=info[videoname], **args)
 
         start = time.time()
 
-        input_gender = args.pop('gender', 'neutral')
-        gender_lbl_type = args.pop('gender_lbl_type', 'none')
-        max_persons = args.pop('max_persons', 1)
+        
+        
 
         float_dtype = args.get('float_dtype', 'float32')
         if float_dtype == 'float64':
@@ -209,12 +213,11 @@ def main(**args):
         joint_weights.unsqueeze_(dim=0)
 
         for idx, data in enumerate(dataset_obj):
-
             img = data['img']
             fn = data['fn']
             keypoints = data['keypoints']
             print('Processing: {}'.format(data['img_path']))
-
+            continue
             curr_result_folder = result_folder
             curr_mesh_folder = mesh_folder
             for person_id in range(keypoints.shape[0]):
@@ -241,12 +244,9 @@ def main(**args):
                 if gender == 'neutral':
                     body_model = neutral_model
                 elif gender == 'female':
-                    body_model = female_model
-                elif gender == 'male':
-                    body_model = male_model
+                    raise NotImplementedError
 
-                out_img_fn = osp.join(curr_img_folder, osp.basename(fn))
-
+                out_img_fn = osp.join(curr_img_folder, '{}.jpg'.format(fn))
                 fit_single_frame(img, keypoints[[person_id]],
                                 body_model=body_model,
                                 camera=camera,
